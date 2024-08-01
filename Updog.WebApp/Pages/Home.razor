@@ -1,0 +1,95 @@
+﻿@using System.Globalization
+@using Updog.Core.Models
+
+@page "/"
+
+<PageTitle>updog</PageTitle>
+
+<h1>Accounts</h1>
+
+<MudStack>
+    @if (_accountsByType != null)
+    {
+        var transactionalAccounts = _accountsByType.GetValueOrDefault("TRANSACTIONAL") ?? new();
+        var saverAccounts = _accountsByType.GetValueOrDefault("SAVER") ?? new();
+        var homeLoanAccounts = _accountsByType.GetValueOrDefault("HOME_LOAN") ?? new();
+
+        <MudText Typo="Typo.body1">Transactional</MudText>
+        <MudList T="string">
+            @foreach (var account in transactionalAccounts)
+            {
+                <MudListItem>
+                    <ChildContent>
+                        <MudStack Row=true AlignItems="AlignItems.Center">
+                            <MudText>@account.Attributes.DisplayName</MudText>
+                            @if (account.Attributes.OwnershipType == "JOINT")
+                            {
+                                <MudText Typo="Typo.caption" Class="mud-text-disabled">JOINT</MudText>
+                            }
+                            <MudSpacer />
+                            <MudText>@account.Attributes.Balance.ToDisplayString()</MudText>
+                        </MudStack>
+                    </ChildContent>
+                </MudListItem>
+
+                @if (account != transactionalAccounts.Last())
+                {
+                    <MudDivider />
+                }
+            }
+        </MudList>
+
+        <MudText Typo="Typo.body1">Savers</MudText>
+        <MudList T="string">
+            @foreach (var account in saverAccounts)
+            {
+                <MudListItem T="string">
+                    <ChildContent>
+                        <MudStack Row=true AlignItems="AlignItems.Center">
+                            <MudText>@account.Attributes.DisplayName</MudText>
+                            @if (account.Attributes.OwnershipType == "JOINT")
+                            {
+                                <MudText Typo="Typo.caption" Class="mud-text-disabled">JOINT</MudText>
+                            }
+                            <MudSpacer />
+                            <MudText>@account.Attributes.Balance.ToDisplayString()</MudText>
+                        </MudStack>
+                    </ChildContent>
+                </MudListItem>
+
+                @if (account != saverAccounts.Last())
+                {
+                    <MudDivider />
+                }
+            }
+        </MudList>
+
+        @if (homeLoanAccounts.Count > 0)
+        {
+            <MudText Typo="Typo.body1">Up Home</MudText>
+            <MudList T="string">
+                @foreach (var account in homeLoanAccounts)
+                {
+                    <MudListItem T="string">
+                        <ChildContent>
+                            <MudStack Row=true AlignItems="AlignItems.Center">
+                                <MudText>@account.Attributes.DisplayName</MudText>
+                                @if (account.Attributes.OwnershipType == "JOINT")
+                                {
+                                    <MudText Typo="Typo.caption" Class="mud-text-disabled">JOINT</MudText>
+                                }
+                                <MudSpacer />
+                                <MudText>@account.Attributes.Balance.ToDisplayString()</MudText>
+                            </MudStack>
+                        </ChildContent>
+                    </MudListItem>
+
+                    @if (account != homeLoanAccounts.Last())
+                    {
+                        <MudDivider />
+                    }
+                }
+            </MudList>
+        }
+    }
+</MudStack>
