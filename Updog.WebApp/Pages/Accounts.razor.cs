@@ -17,11 +17,6 @@ public partial class Accounts
 
     private Dictionary<string, List<AccountResource>>? _accountsByType;
 
-    protected override async Task OnInitializedAsync()
-    {
-        Console.WriteLine($"{nameof(Pages)}.{nameof(Accounts)}:{nameof(OnInitializedAsync)}");
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         Console.WriteLine($"{nameof(Pages)}.{nameof(Accounts)}:{nameof(OnAfterRenderAsync)}(firstRender: {firstRender})");

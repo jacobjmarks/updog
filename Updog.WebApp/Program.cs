@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Updog.WebApp;
 using MudBlazor.Services;
+using Updog.WebApp;
 using Updog.WebApp.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);

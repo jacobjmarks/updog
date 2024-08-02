@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
-using Updog.Core;
 using Updog.WebApp.Services;
 
 namespace Updog.WebApp.Pages;
