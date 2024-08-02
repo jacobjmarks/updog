@@ -7,6 +7,7 @@ namespace Updog.WebApp.Layout;
 public partial class MainLayout
 {
     [Inject] private LocalStorageService LocalStorageService { get; set; } = null!;
+    [Inject] private AuthenticationService AuthenticationService { get; set; } = null!;
 
     private MudThemeProvider _mudThemeProvider = null!;
 
@@ -24,6 +25,8 @@ public partial class MainLayout
     private string _darkLightModeText = null!;
     private string _darkLightModeIcon = null!;
 
+    private bool _showLogoutButton = false;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -31,6 +34,9 @@ public partial class MainLayout
             var themePreference = await LocalStorageService.GetItemAsync<bool?>("qsd:cfg:dark-mode");
             IsDarkMode = themePreference ?? await _mudThemeProvider.GetSystemPreference();
             UpdateDarkLightModeIcon();
+
+            _showLogoutButton = await AuthenticationService.IsAuthenticatedAsync();
+
             StateHasChanged();
         }
     }
@@ -53,5 +59,11 @@ public partial class MainLayout
             _darkLightModeText = "Switch to Dark Mode";
             _darkLightModeIcon = Icons.Material.Filled.DarkMode;
         }
+    }
+
+    private async Task OnLogoutButtonClicked()
+    {
+        await AuthenticationService.LogoutAsync();
+        _showLogoutButton = false;
     }
 }
