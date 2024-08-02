@@ -16,6 +16,12 @@ public sealed class UpBankApiClient : IDisposable
         _httpClient.BaseAddress = new Uri("https://api.up.com.au");
     }
 
+    public async Task<bool> PingAsync(CancellationToken ct = default)
+    {
+        using var response = await _httpClient.GetAsync("api/v1/util/ping", ct);
+        return response.IsSuccessStatusCode;
+    }
+
     public async Task<PagedResource<AccountResource>> GetAccountsAsync(CancellationToken ct = default)
     {
         using var response = await _httpClient.GetAsync("api/v1/accounts", ct);

@@ -1,4 +1,3 @@
-using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using Updog.Core;
@@ -7,33 +6,38 @@ using Updog.WebApp.Services;
 
 namespace Updog.WebApp.Pages;
 
-public sealed partial class Home
+public partial class Accounts
 {
     [Inject] private NavigationManager NavigationManager { get; set; } = null!;
     [Inject] private ISnackbar Snackbar { get; set; } = null!;
-    [Inject] private UpBankApiClient Up { get; set; } = null!;
+    [Inject] private UpBankApiClientProvider UpBankApiClientProvider { get; set; } = null!;
     [Inject] private ClipboardService ClipboardService { get; set; } = null!;
     [Inject] private LocalStorageService LocalStorageService { get; set; } = null!;
-
-    private readonly HttpClient _httpClient = new();
+    [Inject] private AuthenticationService AuthenticationService { get; set; } = null!;
 
     private Dictionary<string, List<AccountResource>>? _accountsByType;
 
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender)
-        {
-            GetAccountsAsync().CatchAndLog();
-        }
+        Console.WriteLine($"{nameof(Pages)}.{nameof(Accounts)}:{nameof(OnInitializedAsync)}");
+    }
 
-        return base.OnAfterRenderAsync(firstRender);
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        Console.WriteLine($"{nameof(Pages)}.{nameof(Accounts)}:{nameof(OnAfterRenderAsync)}(firstRender: {firstRender})");
+        if (await AuthenticationService.EnsureAuthenticatedAsync() && firstRender)
+        {
+            await GetAccountsAsync();
+        }
     }
 
     private async Task GetAccountsAsync()
     {
-        _accountsByType = new();
+        using var up = await UpBankApiClientProvider.GetClientAsync();
 
-        await foreach (var account in Up.GetAllAccountsAsync())
+        _accountsByType = [];
+
+        await foreach (var account in up.GetAllAccountsAsync())
         {
             if (!_accountsByType.TryGetValue(account.Attributes.AccountType, out var accounts))
                 _accountsByType[account.Attributes.AccountType] = [account];
@@ -42,9 +46,5 @@ public sealed partial class Home
         }
 
         StateHasChanged();
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
     }
 }

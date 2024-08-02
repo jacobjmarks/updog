@@ -1,0 +1,27 @@
+@page "/login"
+
+<PageTitle>Login | updog</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="px-0">
+    <MudPaper Class="pa-6" Elevation="1">
+        <MudStack>
+            <h1>Login</h1>
+            <MudForm @ref="loginForm">
+                <MudStack>
+                    <MudText Typo="Typo.body2">Please enter your Up Personal Access Token</MudText>
+                    <MudTextField @ref="textField" @bind-Value="InputValue" Required=true Disabled="@_loggingIn"
+                        Placeholder="up:yeah:" InputType="InputType.Password" />
+                    <MudButton OnClick="OnLoginButtonClicked" Disabled="@_loggingIn" Variant="Variant.Filled"
+                        Color="Color.Primary">
+                        Continue
+                    </MudButton>
+                    <div class="d-flex align-center">
+                        <MudLink Typo="Typo.caption" Href="https://api.up.com.au/" Target="_blank">
+                            Don't have a token?
+                        </MudLink>
+                    </div>
+                </MudStack>
+            </MudForm>
+        </MudStack>
+    </MudPaper>
+</MudContainer>
