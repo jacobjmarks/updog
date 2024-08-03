@@ -10,6 +10,8 @@ public partial class Login
     [Inject] private StateManager StateManager { get; set; } = null!;
 
     public string InputValue { get; set; } = null!;
+    public bool RememberMe { get; set; }
+
     private bool _loggingIn = false;
     private MudForm loginForm = null!;
     private MudTextField<string> textField = null!;
@@ -24,7 +26,7 @@ public partial class Login
 
         try
         {
-            if (!await StateManager.LoginAsync(InputValue))
+            if (!await StateManager.LoginAsync(InputValue, RememberMe))
             {
                 textField.Error = true;
                 textField.ErrorText = "Invalid token";

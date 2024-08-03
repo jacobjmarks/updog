@@ -11,6 +11,7 @@
                     <MudText Typo="Typo.body2">Please enter your Up Personal Access Token</MudText>
                     <MudTextField @ref="textField" @bind-Value="InputValue" Required=true Disabled="@_loggingIn"
                         Placeholder="up:yeah:" InputType="InputType.Password" />
+                    <MudCheckBox @bind-Value="RememberMe" Size="Size.Small">Remember me</MudCheckBox>
                     <MudButton OnClick="OnLoginButtonClicked" Disabled="@_loggingIn" Variant="Variant.Filled"
                         Color="Color.Primary">
                         Continue

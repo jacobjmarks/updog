@@ -12,11 +12,13 @@ public sealed class StateManager(
     private readonly LocalStorageService _localStorageService = localStorageService;
     private readonly SessionStorageService _sessionStorageService = sessionStorageService;
 
-    public UpBankApiClient UpBankApiClient { get; set; } = null!;
+    private string? _upBankApiKey = null;
 
     private async Task<string?> GetUpBankApiKeyAsync()
     {
-        return await _sessionStorageService.GetItemAsync<string>("api-key");
+        _upBankApiKey ??= await _localStorageService.GetItemAsync<string>("api-key");
+        _upBankApiKey ??= await _sessionStorageService.GetItemAsync<string>("api-key");
+        return _upBankApiKey;
     }
 
     public async Task<bool> IsAuthenticatedAsync()
@@ -33,11 +35,16 @@ public sealed class StateManager(
         return isAuthenticated;
     }
 
-    public async Task<bool> LoginAsync(string apiKey)
+    public async Task<bool> LoginAsync(string apiKey, bool rememberMe)
     {
         if (!await UpBankApiClient.PingAsync(apiKey))
             return false;
-        await _sessionStorageService.SetItemAsync("api-key", apiKey);
+
+        if (rememberMe)
+            await _localStorageService.SetItemAsync("api-key", apiKey);
+        else
+            await _sessionStorageService.SetItemAsync("api-key", apiKey);
+
         return true;
     }
 
@@ -56,6 +63,8 @@ public sealed class StateManager(
 
     private async Task ClearStateAsync()
     {
+        _upBankApiKey = null;
+        await _localStorageService.RemoveItemAsync("api-key");
         await _sessionStorageService.RemoveItemAsync("api-key");
     }
 }
