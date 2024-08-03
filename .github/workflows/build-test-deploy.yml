@@ -29,6 +29,10 @@ jobs:
       run: dotnet test --no-build
     - name: Publish
       run: dotnet publish Updog.WebApp -o out
+    - name: Set Base Path
+      run: sed -i 's|<base href="/" />|<base href='"$SITE_BASE_PATH"' />|g' out/wwwroot/index.html
+      env:
+        SITE_BASE_PATH: ${{ format('{0}/', steps.pages.outputs.base_path) }}
     - name: Upload Pages Artifact
       uses: actions/upload-pages-artifact@v3
       with:
