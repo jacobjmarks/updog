@@ -5,7 +5,7 @@ namespace Updog.WebApp.Components;
 
 public partial class EnsureAuthenticated : ComponentBase
 {
-    [Inject] private AuthenticationService AuthenticationService { get; set; } = null!;
+    [Inject] private StateManager StateManager { get; set; } = null!;
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
@@ -14,6 +14,6 @@ public partial class EnsureAuthenticated : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
-        _isAuthenticated = await AuthenticationService.IsAuthenticatedAsync();
+        _isAuthenticated = await StateManager.IsAuthenticatedAsync();
     }
 }

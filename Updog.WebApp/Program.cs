@@ -10,10 +10,9 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddMudServices();
 
-builder.Services.AddTransient<UpBankApiClientProvider>();
-
 builder.Services.AddSingleton<ClipboardService>();
 builder.Services.AddSingleton<LocalStorageService>();
-builder.Services.AddSingleton<AuthenticationService>();
+builder.Services.AddSingleton<SessionStorageService>();
+builder.Services.AddSingleton<StateManager>();
 
 await builder.Build().RunAsync();

@@ -7,7 +7,7 @@ namespace Updog.WebApp.Pages;
 public partial class Login
 {
     [Inject] private NavigationManager NavigationManager { get; set; } = null!;
-    [Inject] private AuthenticationService AuthenticationService { get; set; } = null!;
+    [Inject] private StateManager StateManager { get; set; } = null!;
 
     public string InputValue { get; set; } = null!;
     private bool _loggingIn = false;
@@ -24,7 +24,7 @@ public partial class Login
 
         try
         {
-            if (!await AuthenticationService.LoginAsync(InputValue))
+            if (!await StateManager.LoginAsync(InputValue))
             {
                 textField.Error = true;
                 textField.ErrorText = "Invalid token";
@@ -42,7 +42,7 @@ public partial class Login
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && await AuthenticationService.IsAuthenticatedAsync())
+        if (firstRender && await StateManager.IsAuthenticatedAsync())
             NavigationManager.NavigateTo("/");
     }
 }

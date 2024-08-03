@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
 using Updog.Core;
 using Updog.Core.Models;
 using Updog.WebApp.Services;
@@ -8,19 +7,14 @@ namespace Updog.WebApp.Pages;
 
 public partial class Accounts
 {
-    [Inject] private NavigationManager NavigationManager { get; set; } = null!;
-    [Inject] private ISnackbar Snackbar { get; set; } = null!;
-    [Inject] private UpBankApiClientProvider UpBankApiClientProvider { get; set; } = null!;
-    [Inject] private ClipboardService ClipboardService { get; set; } = null!;
-    [Inject] private LocalStorageService LocalStorageService { get; set; } = null!;
-    [Inject] private AuthenticationService AuthenticationService { get; set; } = null!;
+    [Inject] private StateManager StateManager { get; set; } = null!;
 
     private Dictionary<string, List<AccountResource>>? _accountsByType;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         Console.WriteLine($"{nameof(Pages)}.{nameof(Accounts)}:{nameof(OnAfterRenderAsync)}(firstRender: {firstRender})");
-        if (await AuthenticationService.EnsureAuthenticatedAsync() && firstRender)
+        if (await StateManager.EnsureAuthenticatedAsync() && firstRender)
         {
             await GetAccountsAsync();
         }
@@ -28,7 +22,7 @@ public partial class Accounts
 
     private async Task GetAccountsAsync()
     {
-        using var up = await UpBankApiClientProvider.GetClientAsync();
+        var up = await StateManager.GetUpBankApiClientAsync();
 
         _accountsByType = [];
 

@@ -7,7 +7,7 @@ namespace Updog.WebApp.Layout;
 public partial class MainLayout
 {
     [Inject] private LocalStorageService LocalStorageService { get; set; } = null!;
-    [Inject] private AuthenticationService AuthenticationService { get; set; } = null!;
+    [Inject] private StateManager StateManager { get; set; } = null!;
 
     private MudThemeProvider _mudThemeProvider = null!;
 
@@ -35,7 +35,7 @@ public partial class MainLayout
             IsDarkMode = themePreference ?? await _mudThemeProvider.GetSystemPreference();
             UpdateDarkLightModeIcon();
 
-            _showLogoutButton = await AuthenticationService.IsAuthenticatedAsync();
+            _showLogoutButton = await StateManager.IsAuthenticatedAsync();
 
             StateHasChanged();
         }
@@ -63,7 +63,7 @@ public partial class MainLayout
 
     private async Task OnLogoutButtonClicked()
     {
-        await AuthenticationService.LogoutAsync();
+        await StateManager.LogoutAsync();
         _showLogoutButton = false;
     }
 }
