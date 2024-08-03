@@ -37,7 +37,7 @@ public sealed class UpBankApiClient : IDisposable
 
     public async Task<PagedResource<TransactionResource>> GetTransactionsAsync(CancellationToken ct = default)
     {
-        using var response = await _httpClient.GetAsync("api/v1/transactions?page[size]=100&filter[status]=SETTLED", ct);
+        using var response = await _httpClient.GetAsync("api/v1/transactions?page[size]=100", ct);
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<PagedResource<TransactionResource>>(cancellationToken: ct) ?? throw new JsonException();
     }

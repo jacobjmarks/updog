@@ -1,0 +1,49 @@
+﻿@using System.Globalization
+@using Updog.Core.Models
+
+@page "/transactions"
+
+<EnsureAuthenticated>
+    <PageTitle>Transactions | updog</PageTitle>
+
+    <h1 Class="mb-4">Transactions</h1>
+
+    <MudStack>
+        <MudTable Dense="true" Items="@_transactions" Loading="@_loading" Breakpoint="Breakpoint.None">
+            <ColGroup>
+                <col />
+                <col style="width: 100%;" />
+                <col />
+                <col />
+            </ColGroup>
+            <HeaderContent>
+
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd Style="white-space:nowrap">
+                    @context.Attributes.CreatedAt.ToString("g")
+                </MudTd>
+                <MudTd>
+                    <MudStack Row="true" AlignItems="AlignItems.Center">
+                        <MudText Typo="Typo.body2">
+                            @context.Attributes.Description
+                        </MudText>
+                        <MudText Typo="Typo.body2" Class="mud-text-disabled">
+                            @context.Attributes.RawText
+                        </MudText>
+                    </MudStack>
+                    <i>@context.Attributes.Message</i>
+                </MudTd>
+                <MudTd Style="text-align:right">
+                    @if (context.Attributes.Status == "HELD")
+                    {
+                        <MudText Typo="Typo.caption" Class="mud-text-disabled">PENDING</MudText>
+                    }
+                </MudTd>
+                <MudTd Style="text-align:right">
+                    @context.Attributes.Amount.ToDisplayString()
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudStack>
+</EnsureAuthenticated>
