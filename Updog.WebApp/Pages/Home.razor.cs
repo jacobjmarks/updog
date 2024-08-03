@@ -8,6 +8,6 @@ public partial class Home
 
     protected override void OnInitialized()
     {
-        NavigationManager.NavigateTo("/accounts", replace: true);
+        NavigationManager.NavigateTo("accounts", replace: true);
     }
 }

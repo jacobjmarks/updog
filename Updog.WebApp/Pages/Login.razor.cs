@@ -33,7 +33,7 @@ public partial class Login
             }
             else
             {
-                NavigationManager.NavigateTo("/");
+                NavigationManager.NavigateTo("");
             }
         }
         finally
@@ -45,6 +45,6 @@ public partial class Login
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && await StateManager.IsAuthenticatedAsync())
-            NavigationManager.NavigateTo("/");
+            NavigationManager.NavigateTo("");
     }
 }
