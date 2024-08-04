@@ -25,6 +25,8 @@ public partial class MainLayout
     private string _darkLightModeText = null!;
     private string _darkLightModeIcon = null!;
 
+    private bool _drawerOpen = true;
+
     private bool _showLogoutButton = false;
     public bool ShowLogoutButton
     {
@@ -50,6 +52,11 @@ public partial class MainLayout
         }
 
         ShowLogoutButton = await StateManager.IsAuthenticatedAsync();
+    }
+
+    private void OnMenuButtonClicked()
+    {
+        _drawerOpen = !_drawerOpen;
     }
 
     private void ToggleDarkLightMode()
