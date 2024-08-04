@@ -15,7 +15,8 @@ public partial class Transactions
     private IEnumerable<TransactionResource> _transactions = [];
     private IEnumerable<AccountResource> _accounts = [];
     private bool _loading = true;
-    private string? _accountId;
+    [SupplyParameterFromQuery(Name = "account")]
+    private string? FilterByAccountId { get; set; }
     private int _resultsPerPage = 25;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -29,7 +30,7 @@ public partial class Transactions
 
     private async Task OnAccountFilterChanged(string? account)
     {
-        _accountId = account;
+        FilterByAccountId = account;
         await GetFirstPageAsync();
     }
 
@@ -56,10 +57,10 @@ public partial class Transactions
         {
             var up = await StateManager.GetUpBankApiClientAsync();
             PagedResource<TransactionResource> page;
-            if (!string.IsNullOrEmpty(_accountId))
+            if (!string.IsNullOrEmpty(FilterByAccountId))
             {
                 page = await up.GetTransactionsByAccountAsync(
-                    _accountId,
+                    FilterByAccountId,
                     pageSize: _resultsPerPage,
                     ct: ct);
             }

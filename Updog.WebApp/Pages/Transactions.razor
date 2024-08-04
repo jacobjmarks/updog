@@ -11,7 +11,7 @@
     <MudStack>
         <MudPaper>
             <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd" Class="pa-4">
-                <MudSelect Variant="Variant.Outlined" Clearable="true" Label="Account" Value="@_accountId"
+                <MudSelect Variant="Variant.Outlined" Clearable="true" Label="Account" Value="@FilterByAccountId"
                     ValueChanged="@((string? value) => OnAccountFilterChanged(value))" ShrinkLabel="true"
                     Placeholder="Any">
                     @foreach (var account in _accounts.OrderByDescending(a => a.Attributes.AccountType))
