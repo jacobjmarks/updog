@@ -10,6 +10,16 @@
 
     <MudStack>
         <MudPaper>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd" Class="pa-4">
+                <MudSelect Variant="Variant.Outlined" Clearable="true" Label="Account" Value="@_accountId"
+                    ValueChanged="@((string? value) => OnAccountFilterChanged(value))" ShrinkLabel="true"
+                    Placeholder="Any">
+                    @foreach (var account in _accounts.OrderByDescending(a => a.Attributes.AccountType))
+                    {
+                        <MudSelectItem Value="account.Id">@account.Attributes.DisplayName</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudStack>
             <MudTable Elevation="0" Items="_transactions" Loading="@_loading" Dense="true" Breakpoint="Breakpoint.None">
                 <ColGroup>
                     <col />
@@ -56,8 +66,7 @@
                 <MudStack Row="true" AlignItems="AlignItems.Center">
                     <MudInputLabel Typo="Typo.body2">Results per page:</MudInputLabel>
                     <MudSelect Value="@_resultsPerPage" ValueChanged="@((int value) => OnResultsPerPageChanged(value))"
-                        Class="mud-table-pagination-select" Dense="true" Typo="Typo.body2" Underline="false"
-                        FullWidth="true">
+                        Class="mud-table-pagination-select" Dense="true" Typo="Typo.body2" Underline="false">
                         <MudSelectItem Value="25">25</MudSelectItem>
                         <MudSelectItem Value="50">50</MudSelectItem>
                         <MudSelectItem Value="100">100</MudSelectItem>

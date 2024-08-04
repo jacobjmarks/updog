@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Updog.Core;
 using Updog.Core.Models;
 using Updog.WebApp.Services;
 
@@ -12,15 +13,24 @@ public partial class Transactions
     public string? NextPageLink { get; set; }
 
     private IEnumerable<TransactionResource> _transactions = [];
+    private IEnumerable<AccountResource> _accounts = [];
     private bool _loading = true;
+    private string? _accountId;
     private int _resultsPerPage = 25;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (await StateManager.EnsureAuthenticatedAsync() && firstRender)
         {
+            await GetAccountsAsync();
             await GetFirstPageAsync(notifyStateChanged: true);
         }
+    }
+
+    private async Task OnAccountFilterChanged(string? account)
+    {
+        _accountId = account;
+        await GetFirstPageAsync();
     }
 
     private async Task OnResultsPerPageChanged(int value)
@@ -29,15 +39,36 @@ public partial class Transactions
         await GetFirstPageAsync();
     }
 
+    private async Task GetAccountsAsync()
+    {
+        var up = await StateManager.GetUpBankApiClientAsync();
+        var accounts = new List<AccountResource>();
+        await foreach (var account in up.GetAllAccountsAsync())
+            accounts.Add(account);
+        _accounts = accounts;
+        StateHasChanged();
+    }
+
     private async Task GetFirstPageAsync(bool notifyStateChanged = false, CancellationToken ct = default)
     {
         _loading = true;
         try
         {
             var up = await StateManager.GetUpBankApiClientAsync();
-            var page = await up.GetTransactionsAsync(
+            PagedResource<TransactionResource> page;
+            if (!string.IsNullOrEmpty(_accountId))
+            {
+                page = await up.GetTransactionsByAccountAsync(
+                    _accountId,
                     pageSize: _resultsPerPage,
                     ct: ct);
+            }
+            else
+            {
+                page = await up.GetTransactionsAsync(
+                    pageSize: _resultsPerPage,
+                    ct: ct);
+            }
 
             PrevPageLink = page.Links.Prev;
             NextPageLink = page.Links.Next;

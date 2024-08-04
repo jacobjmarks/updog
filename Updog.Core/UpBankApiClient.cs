@@ -64,6 +64,35 @@ public sealed class UpBankApiClient : IDisposable
         return await response.Content.ReadFromJsonAsync<PagedResource<TransactionResource>>(cancellationToken: ct) ?? throw new JsonException();
     }
 
+    public async Task<PagedResource<TransactionResource>> GetTransactionsByAccountAsync(
+        string accountId,
+        int? pageSize = null,
+        string? filterStatus = null,
+        DateTimeOffset? filterSince = null,
+        DateTimeOffset? filterUntil = null,
+        string? filterCategory = null,
+        string? filterTag = null,
+        CancellationToken ct = default)
+    {
+        var qs = new QueryString();
+        if (pageSize != null)
+            qs = qs.Add("page[size]", pageSize.ToString());
+        if (filterStatus != null)
+            qs = qs.Add("filter[status]", filterStatus);
+        if (filterSince.HasValue)
+            qs = qs.Add("filter[since]", filterSince.Value.ToString("o"));
+        if (filterUntil.HasValue)
+            qs = qs.Add("filter[since]", filterUntil.Value.ToString("o"));
+        if (filterCategory != null)
+            qs = qs.Add("filter[category]", filterCategory);
+        if (filterTag != null)
+            qs = qs.Add("filter[tag]", filterTag);
+
+        using var response = await _httpClient.GetAsync($"api/v1/accounts/{accountId}/transactions" + qs, ct);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<PagedResource<TransactionResource>>(cancellationToken: ct) ?? throw new JsonException();
+    }
+
     public async Task<T> GetAsync<T>(string url, CancellationToken ct = default)
     {
         using var response = await _httpClient.GetAsync(url, ct);
