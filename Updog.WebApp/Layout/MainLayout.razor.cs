@@ -26,19 +26,30 @@ public partial class MainLayout
     private string _darkLightModeIcon = null!;
 
     private bool _showLogoutButton = false;
+    public bool ShowLogoutButton
+    {
+        get => _showLogoutButton; set
+        {
+            var notifyStateChanged = value != _showLogoutButton;
+            _showLogoutButton = value;
+            if (notifyStateChanged)
+                StateHasChanged();
+        }
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        Console.WriteLine($"{nameof(MainLayout)}:{nameof(OnAfterRenderAsync)}(firstRender: {firstRender})");
         if (firstRender)
         {
             var themePreference = await LocalStorageService.GetItemAsync<bool?>("qsd:cfg:dark-mode");
             IsDarkMode = themePreference ?? await _mudThemeProvider.GetSystemPreference();
             UpdateDarkLightModeIcon();
 
-            _showLogoutButton = await StateManager.IsAuthenticatedAsync();
-
             StateHasChanged();
         }
+
+        ShowLogoutButton = await StateManager.IsAuthenticatedAsync();
     }
 
     private void ToggleDarkLightMode()
@@ -64,6 +75,6 @@ public partial class MainLayout
     private async Task OnLogoutButtonClicked()
     {
         await StateManager.LogoutAsync();
-        _showLogoutButton = false;
+        ShowLogoutButton = false;
     }
 }

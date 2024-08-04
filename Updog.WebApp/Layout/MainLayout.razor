@@ -14,9 +14,10 @@
             </MudLink>
         </MudText>
         <MudSpacer />
-        @if (_showLogoutButton)
+        @if (ShowLogoutButton)
         {
-            <MudButton OnClick="OnLogoutButtonClicked" Size="Size.Small" EndIcon="@Icons.Material.Filled.Logout">
+            <MudButton OnClick="OnLogoutButtonClicked" Size="Size.Small" EndIcon="@Icons.Material.Filled.Logout"
+                Color="Color.Inherit">
                 LOGOUT
             </MudButton>
             <MudDivider Vertical="true" FlexItem="true" Class="my-3 mx-3" />
