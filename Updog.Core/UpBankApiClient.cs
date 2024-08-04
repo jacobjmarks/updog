@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http;
 using Updog.Core.Models;
 
 namespace Updog.Core;
@@ -35,11 +36,39 @@ public sealed class UpBankApiClient : IDisposable
         return await response.Content.ReadFromJsonAsync<PagedResource<AccountResource>>(cancellationToken: ct) ?? throw new JsonException();
     }
 
-    public async Task<PagedResource<TransactionResource>> GetTransactionsAsync(CancellationToken ct = default)
+    public async Task<PagedResource<TransactionResource>> GetTransactionsAsync(
+        int? pageSize = null,
+        string? filterStatus = null,
+        DateTimeOffset? filterSince = null,
+        DateTimeOffset? filterUntil = null,
+        string? filterCategory = null,
+        string? filterTag = null,
+        CancellationToken ct = default)
     {
-        using var response = await _httpClient.GetAsync("api/v1/transactions?page[size]=100", ct);
+        var qs = new QueryString();
+        if (pageSize != null)
+            qs = qs.Add("page[size]", pageSize.ToString());
+        if (filterStatus != null)
+            qs = qs.Add("filter[status]", filterStatus);
+        if (filterSince.HasValue)
+            qs = qs.Add("filter[since]", filterSince.Value.ToString("o"));
+        if (filterUntil.HasValue)
+            qs = qs.Add("filter[since]", filterUntil.Value.ToString("o"));
+        if (filterCategory != null)
+            qs = qs.Add("filter[category]", filterCategory);
+        if (filterTag != null)
+            qs = qs.Add("filter[tag]", filterTag);
+
+        using var response = await _httpClient.GetAsync("api/v1/transactions" + qs, ct);
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<PagedResource<TransactionResource>>(cancellationToken: ct) ?? throw new JsonException();
+    }
+
+    public async Task<T> GetAsync<T>(string url, CancellationToken ct = default)
+    {
+        using var response = await _httpClient.GetAsync(url, ct);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<T>(cancellationToken: ct) ?? throw new JsonException();
     }
 
     public void Dispose()
@@ -57,7 +86,7 @@ public static class UpBankApiClientExtensions
 
     public static IAsyncEnumerable<TransactionResource> GetAllTransactionsAsync(this UpBankApiClient client, CancellationToken ct = default)
     {
-        return Exhaust(client, (c, ct) => c.GetTransactionsAsync(ct), ct);
+        return Exhaust(client, (c, ct) => c.GetTransactionsAsync(pageSize: 100, ct: ct), ct);
     }
 
     private static async IAsyncEnumerable<T> Exhaust<T>(UpBankApiClient client, Func<UpBankApiClient, CancellationToken, Task<PagedResource<T>>> getFirstPage, [EnumeratorCancellation] CancellationToken ct = default)

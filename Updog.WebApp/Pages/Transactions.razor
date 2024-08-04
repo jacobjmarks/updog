@@ -9,41 +9,67 @@
     <h1 Class="mb-4">Transactions</h1>
 
     <MudStack>
-        <MudTable Dense="true" Items="@_transactions" Loading="@_loading" Breakpoint="Breakpoint.None">
-            <ColGroup>
-                <col />
-                <col style="width: 100%;" />
-                <col />
-                <col />
-            </ColGroup>
-            <HeaderContent>
+        <MudPaper>
+            <MudTable Elevation="0" Items="_transactions" Loading="@_loading" Dense="true" Breakpoint="Breakpoint.None">
+                <ColGroup>
+                    <col />
+                    <col style="width: 100%;" />
+                    <col />
+                    <col />
+                </ColGroup>
+                <HeaderContent>
 
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd Style="white-space:nowrap">
-                    @context.Attributes.CreatedAt.ToString("g")
-                </MudTd>
-                <MudTd>
-                    <MudStack Row="true" AlignItems="AlignItems.Center">
-                        <MudText Typo="Typo.body2">
-                            @context.Attributes.Description
-                        </MudText>
-                        <MudText Typo="Typo.body2" Class="mud-text-disabled">
-                            @context.Attributes.RawText
-                        </MudText>
-                    </MudStack>
-                    <i>@context.Attributes.Message</i>
-                </MudTd>
-                <MudTd Style="text-align:right">
-                    @if (context.Attributes.Status == "HELD")
-                    {
-                        <MudText Typo="Typo.caption" Class="mud-text-disabled">PENDING</MudText>
-                    }
-                </MudTd>
-                <MudTd Style="text-align:right">
-                    @context.Attributes.Amount.ToDisplayString()
-                </MudTd>
-            </RowTemplate>
-        </MudTable>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd Style="white-space:nowrap">
+                        @context.Attributes.CreatedAt.ToString("g")
+                    </MudTd>
+                    <MudTd>
+                        <MudStack Row="true" AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.body2">
+                                @context.Attributes.Description
+                            </MudText>
+                            <MudText Typo="Typo.body2" Class="mud-text-disabled">
+                                @context.Attributes.RawText
+                            </MudText>
+                        </MudStack>
+                        <i>@context.Attributes.Message</i>
+                    </MudTd>
+                    <MudTd Style="text-align:right">
+                        @if (context.Attributes.Status == "HELD")
+                        {
+                            <MudText Typo="Typo.caption" Class="mud-text-disabled">PENDING</MudText>
+                        }
+                    </MudTd>
+                    <MudTd Style="text-align:right">
+                        @context.Attributes.Amount.ToDisplayString()
+                    </MudTd>
+                </RowTemplate>
+                <NoRecordsContent>
+                    <MudText>No transactions found</MudText>
+                </NoRecordsContent>
+                <LoadingContent>
+                    <MudText>Loading...</MudText>
+                </LoadingContent>
+            </MudTable>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd" Class="pa-1">
+                <MudStack Row="true" AlignItems="AlignItems.Center">
+                    <MudInputLabel Typo="Typo.body2">Results per page:</MudInputLabel>
+                    <MudSelect Value="@_resultsPerPage" ValueChanged="@((int value) => OnResultsPerPageChanged(value))"
+                        Class="mud-table-pagination-select" Dense="true" Typo="Typo.body2" Underline="false"
+                        FullWidth="true">
+                        <MudSelectItem Value="25">25</MudSelectItem>
+                        <MudSelectItem Value="50">50</MudSelectItem>
+                        <MudSelectItem Value="100">100</MudSelectItem>
+                    </MudSelect>
+                </MudStack>
+                <MudIconButton OnClick="OnFirstButtonClicked" Disabled="@(PrevPageLink == null)"
+                    Icon="@Icons.Material.Filled.FirstPage" />
+                <MudIconButton OnClick="OnPrevButtonClicked" Disabled="@(PrevPageLink == null)"
+                    Icon="@Icons.Material.Filled.NavigateBefore" />
+                <MudIconButton OnClick="OnNextButtonClicked" Disabled="@(NextPageLink == null)"
+                    Icon="@Icons.Material.Filled.NavigateNext" />
+            </MudStack>
+        </MudPaper>
     </MudStack>
 </EnsureAuthenticated>
