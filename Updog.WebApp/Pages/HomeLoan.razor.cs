@@ -1,7 +1,6 @@
-using System.Globalization;
-using System.Transactions;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using MudBlazor.Components.Chart.Models;
 using Updog.Core;
 using Updog.Core.Models;
 using Updog.WebApp.Services;
@@ -18,7 +17,13 @@ public partial class HomeLoan
     private string _totalDrawdown = null!;
     private string _totalInterest = null!;
     private string _totalRepayments = null!;
+    private string _totalOffset = null!;
     private bool _loading = true;
+
+    private List<TimeSeriesChartSeries> _balanceChartSeries = [];
+    private ChartOptions _balanceChartOptions = new() { YAxisFormat = "C", ShowLegend = false };
+    private List<TimeSeriesChartSeries> _interestChartSeries = [];
+    private ChartOptions _interestChartOptions = new() { YAxisFormat = "C", ShowLegend = false };
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -35,9 +40,9 @@ public partial class HomeLoan
         try
         {
             var up = await StateManager.GetUpBankApiClientAsync();
+            var accounts = (await up.GetAccountsAsync(pageSize: 100)).Data;
 
-            var getHomeLoanAccounts = await up.GetAccountsAsync(filterAccountType: "HOME_LOAN");
-            var homeLoanAccount = getHomeLoanAccounts.Data.FirstOrDefault();
+            var homeLoanAccount = accounts.FirstOrDefault(a => a.Attributes.AccountType == "HOME_LOAN");
             if (homeLoanAccount == null)
             {
                 NavigationManager.NavigateTo("");
@@ -49,22 +54,73 @@ public partial class HomeLoan
             {
                 _homeLoanTransactions.Add(transaction);
             }
+            _homeLoanTransactions.Reverse();
 
             var totalDrawdown = _homeLoanTransactions
                 .Where(t => t.Attributes.Amount.ValueInBaseUnits < 0
                     && t.Attributes.TransactionType != "Interest")
                 .Sum(t => t.Attributes.Amount.ValueInBaseUnits) / 100m;
-            _totalDrawdown = totalDrawdown.ToString("C", new CultureInfo("en-AU"));
+            _totalDrawdown = totalDrawdown.ToString("C");
 
             var totalRepayments = _homeLoanTransactions
                 .Where(t => t.Attributes.Amount.ValueInBaseUnits > 0)
                 .Sum(t => t.Attributes.Amount.ValueInBaseUnits) / 100m;
-            _totalRepayments = totalRepayments.ToString("C", new CultureInfo("en-AU"));
+            _totalRepayments = totalRepayments.ToString("C");
 
             var totalInterest = _homeLoanTransactions
                 .Where(t => t.Attributes.TransactionType == "Interest")
                 .Sum(t => t.Attributes.Amount.ValueInBaseUnits) / 100m;
-            _totalInterest = totalInterest.ToString("C", new CultureInfo("en-AU"));
+            _totalInterest = totalInterest.ToString("C");
+
+            // Chart: Balance
+            _balanceChartSeries.Add(new()
+            {
+                Data = _homeLoanTransactions
+                    // .OrderBy(t => t.Attributes.SettledAt ?? t.Attributes.CreatedAt)
+                    .Aggregate(new List<(DateTimeOffset Date, decimal Value)>(), (results, t) =>
+                    {
+                        var date = t.Attributes.SettledAt ?? t.Attributes.CreatedAt;
+
+                        if (t.Attributes.TransactionType == "Drawdown"
+                        || t.Attributes.TransactionType == "Lenders Mortgage Insurance")
+                        {
+                            if (results.Count == 0)
+                                results.Add(new(date, -t.Attributes.Amount.ValueInBaseUnits));
+                            else
+                                results[0] = new(date, results[0].Value + -t.Attributes.Amount.ValueInBaseUnits);
+                        }
+                        else
+                        {
+                            var value = results.Count == 0
+                                ? -t.Attributes.Amount.ValueInBaseUnits
+                                : results.Last().Value + -t.Attributes.Amount.ValueInBaseUnits;
+                            results.Add((date, value));
+                        }
+
+                        return results;
+                    })
+                    .Select(d => new TimeSeriesChartSeries.TimeValue(d.Date.DateTime, decimal.ToDouble(d.Value / 100m)))
+                    .ToList(),
+            });
+
+            // Chart: Interest
+            _interestChartSeries.Add(new());
+            _interestChartSeries.Add(new());
+            _interestChartSeries.Add(new()
+            {
+                Data = _homeLoanTransactions
+                    .Where(t => t.Attributes.TransactionType == "Interest")
+                    // .OrderBy(t => t.Attributes.SettledAt ?? t.Attributes.CreatedAt)
+                    .Aggregate(new List<(DateTimeOffset Date, decimal Value)>(), (results, t) =>
+                    {
+                        var date = t.Attributes.SettledAt ?? t.Attributes.CreatedAt;
+                        var value = -t.Attributes.Amount.ValueInBaseUnits;
+                        results.Add((date, value));
+                        return results;
+                    })
+                    .Select(d => new TimeSeriesChartSeries.TimeValue(d.Date.DateTime, decimal.ToDouble(d.Value / 100m)))
+                    .ToList(),
+            });
         }
         finally
         {
