@@ -1,0 +1,100 @@
+@using Updog.Core.Models
+
+@page "/home-loan"
+
+<EnsureAuthenticated>
+    <PageTitle>Home Loan | updog</PageTitle>
+
+    <h1 Class="mb-4">Home Loan</h1>
+
+    <MudStack>
+        @if (_loading)
+        {
+            <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+        }
+        else
+        {
+            <MudPaper Class="pa-4">
+                <MudGrid Spacing="0" Justify="Justify.SpaceEvenly">
+                    <MudItem>
+                        <MudStack Spacing="0" AlignItems="AlignItems.Center" Justify="Justify.Center">
+                            <MudText Typo="Typo.body1" Style="font-weight:lighter">
+                                Drawdown
+                            </MudText>
+                            <MudDivider />
+                            <MudText Typo="Typo.h6">
+                                @_totalDrawdown
+                            </MudText>
+                        </MudStack>
+                    </MudItem>
+                    <MudHidden Breakpoint="Breakpoint.MdAndUp">
+                        <MudFlexBreak />
+                    </MudHidden>
+                    <MudItem Class="align-content-center mx-4">
+                        <MudText Typo="Typo.h5" Style="font-family:sans-serif">
+                            &minus;
+                        </MudText>
+                    </MudItem>
+                    <MudHidden Breakpoint="Breakpoint.MdAndUp">
+                        <MudFlexBreak />
+                    </MudHidden>
+                    <MudItem>
+                        <MudStack Spacing="0" AlignItems="AlignItems.Center" Justify="Justify.Center">
+                            <MudText Typo="Typo.body1" Style="font-weight:lighter">
+                                Repayments
+                            </MudText>
+                            <MudDivider />
+                            <MudText Typo="Typo.h6">
+                                @_totalRepayments
+                            </MudText>
+                        </MudStack>
+                    </MudItem>
+                    <MudHidden Breakpoint="Breakpoint.MdAndUp">
+                        <MudFlexBreak />
+                    </MudHidden>
+                    <MudItem Class="align-content-center mx-4">
+                        <MudText Typo="Typo.h5" Style="font-family:sans-serif">
+                            +
+                        </MudText>
+                    </MudItem>
+                    <MudHidden Breakpoint="Breakpoint.MdAndUp">
+                        <MudFlexBreak />
+                    </MudHidden>
+                    <MudItem>
+                        <MudStack Spacing="0" AlignItems="AlignItems.Center" Justify="Justify.Center">
+                            <MudText Typo="Typo.body1" Style="font-weight:lighter">
+                                Interest
+                            </MudText>
+                            <MudDivider />
+                            <MudText Typo="Typo.h6">
+                                @_totalInterest
+                            </MudText>
+                        </MudStack>
+                    </MudItem>
+                    <MudHidden Breakpoint="Breakpoint.MdAndUp">
+                        <MudFlexBreak />
+                    </MudHidden>
+                    <MudItem Class="align-content-center mx-4">
+                        <MudText Typo="Typo.h5" Style="font-family:sans-serif">
+                            =
+                        </MudText>
+                    </MudItem>
+                    <MudHidden Breakpoint="Breakpoint.MdAndUp">
+                        <MudFlexBreak />
+                    </MudHidden>
+                    <MudItem>
+                        <MudStack Spacing="0" AlignItems="AlignItems.Center" Justify="Justify.Center">
+                            <MudText Typo="Typo.body1" Style="font-weight:lighter">
+                                Balance
+                            </MudText>
+                            <MudDivider />
+                            <MudText Typo="Typo.h6">
+                                @_homeLoanAccount.Attributes.Balance.ToDisplayString()
+                            </MudText>
+                        </MudStack>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        }
+    </MudStack>
+</EnsureAuthenticated>

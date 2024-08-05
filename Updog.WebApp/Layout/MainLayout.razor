@@ -29,22 +29,23 @@
     </MudAppBar>
     <MudDrawer @bind-Open="@_drawerOpen" ClipMode="DrawerClipMode.Always">
         <MudNavMenu Rounded="true">
-            <MudNavLink Href="accounts" Match="NavLinkMatch.All" Disabled="@(!ShowLogoutButton)"
+            <MudNavLink Href="accounts" Match="NavLinkMatch.All" Disabled="@(!UserIsLoggedIn)"
                 Icon="@Icons.Material.Filled.AccountBalanceWallet">
                 Accounts
             </MudNavLink>
-            <MudNavLink Href="transactions" Match="NavLinkMatch.Prefix" Disabled="@(!ShowLogoutButton)"
+            <MudNavLink Href="transactions" Match="NavLinkMatch.Prefix" Disabled="@(!UserIsLoggedIn)"
                 Icon="@Icons.Material.Filled.CompareArrows">
                 Transactions
             </MudNavLink>
-            <MudNavLink Href="home" Match="NavLinkMatch.All" Disabled="true" Icon="@Icons.Material.Filled.Home">
+            <MudNavLink Href="home-loan" Match="NavLinkMatch.All"
+                Disabled="@(!(UserIsLoggedIn && (_userHasHomeLoanAccount ?? false)))" Icon="@Icons.Material.Filled.Home">
                 Home Loan
             </MudNavLink>
             <MudDivider />
             <MudNavLink Href="about" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Info">
                 About
             </MudNavLink>
-            @if (ShowLogoutButton)
+            @if (UserIsLoggedIn)
             {
                 <MudNavLink OnClick="OnLogoutButtonClicked" Icon="@Icons.Material.Filled.Logout">
                     <MudText Inline="true" Typo="Typo.body2">

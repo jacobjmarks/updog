@@ -29,9 +29,21 @@ public sealed class UpBankApiClient : IDisposable
         return response.IsSuccessStatusCode;
     }
 
-    public async Task<PagedResource<AccountResource>> GetAccountsAsync(CancellationToken ct = default)
+    public async Task<PagedResource<AccountResource>> GetAccountsAsync(
+        int? pageSize = null,
+        string? filterAccountType = null,
+        string? filterOwnershipType = null,
+         CancellationToken ct = default)
     {
-        using var response = await _httpClient.GetAsync("api/v1/accounts", ct);
+        var qs = new QueryString();
+        if (pageSize != null)
+            qs = qs.Add("page[size]", pageSize.ToString());
+        if (filterAccountType != null)
+            qs = qs.Add("filter[accountType]", filterAccountType);
+        if (filterOwnershipType != null)
+            qs = qs.Add("filter[ownershipType]", filterOwnershipType);
+
+        using var response = await _httpClient.GetAsync("api/v1/accounts" + qs, ct);
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<PagedResource<AccountResource>>(cancellationToken: ct) ?? throw new JsonException();
     }
@@ -110,12 +122,17 @@ public static class UpBankApiClientExtensions
 {
     public static IAsyncEnumerable<AccountResource> GetAllAccountsAsync(this UpBankApiClient client, CancellationToken ct = default)
     {
-        return Exhaust(client, (c, ct) => c.GetAccountsAsync(ct), ct);
+        return Exhaust(client, (c, ct) => c.GetAccountsAsync(pageSize: 100, ct: ct), ct);
     }
 
     public static IAsyncEnumerable<TransactionResource> GetAllTransactionsAsync(this UpBankApiClient client, CancellationToken ct = default)
     {
         return Exhaust(client, (c, ct) => c.GetTransactionsAsync(pageSize: 100, ct: ct), ct);
+    }
+
+    public static IAsyncEnumerable<TransactionResource> GetAllTransactionsByAccountAsync(this UpBankApiClient client, string accountId, CancellationToken ct = default)
+    {
+        return Exhaust(client, (c, ct) => c.GetTransactionsByAccountAsync(accountId, pageSize: 100, ct: ct), ct);
     }
 
     private static async IAsyncEnumerable<T> Exhaust<T>(UpBankApiClient client, Func<UpBankApiClient, CancellationToken, Task<PagedResource<T>>> getFirstPage, [EnumeratorCancellation] CancellationToken ct = default)

@@ -27,31 +27,39 @@ public partial class MainLayout
 
     private bool _drawerOpen = true;
 
-    private bool _showLogoutButton = false;
-    public bool ShowLogoutButton
+    private bool _userIsLoggedIn = false;
+    public bool UserIsLoggedIn
     {
-        get => _showLogoutButton; set
+        get => _userIsLoggedIn; set
         {
-            var notifyStateChanged = value != _showLogoutButton;
-            _showLogoutButton = value;
+            var notifyStateChanged = value != _userIsLoggedIn;
+            _userIsLoggedIn = value;
             if (notifyStateChanged)
                 StateHasChanged();
         }
     }
 
+    private bool? _userHasHomeLoanAccount;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         Console.WriteLine($"{nameof(MainLayout)}:{nameof(OnAfterRenderAsync)}(firstRender: {firstRender})");
+        UserIsLoggedIn = await StateManager.IsAuthenticatedAsync();
+
         if (firstRender)
         {
             var themePreference = await LocalStorageService.GetItemAsync<bool?>("qsd:cfg:dark-mode");
             IsDarkMode = themePreference ?? await _mudThemeProvider.GetSystemPreference();
             UpdateDarkLightModeIcon();
 
+            if (UserIsLoggedIn)
+            {
+                var up = await StateManager.GetUpBankApiClientAsync();
+                _userHasHomeLoanAccount = (await up.GetAccountsAsync(filterAccountType: "HOME_LOAN")).Data.Any();
+            }
+
             StateHasChanged();
         }
-
-        ShowLogoutButton = await StateManager.IsAuthenticatedAsync();
     }
 
     private void OnMenuButtonClicked()
@@ -82,6 +90,6 @@ public partial class MainLayout
     private async Task OnLogoutButtonClicked()
     {
         await StateManager.LogoutAsync();
-        ShowLogoutButton = false;
+        UserIsLoggedIn = false;
     }
 }
