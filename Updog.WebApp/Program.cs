@@ -4,6 +4,9 @@ using MudBlazor.Services;
 using Updog.WebApp;
 using Updog.WebApp.Services;
 
+System.Globalization.CultureInfo.CurrentCulture = new("en-AU");
+System.Globalization.CultureInfo.CurrentUICulture = new("en-AU");
+
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
