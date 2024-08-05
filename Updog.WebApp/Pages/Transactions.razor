@@ -22,37 +22,42 @@
             </MudStack>
             <MudTable Elevation="0" Items="_transactions" Loading="@_loading" Dense="true" Breakpoint="Breakpoint.None">
                 <ColGroup>
-                    <col />
-                    <col style="width: 100%;" />
-                    <col />
-                    <col />
+                    <col style="width:100%" />
                 </ColGroup>
                 <HeaderContent>
 
                 </HeaderContent>
                 <RowTemplate>
-                    <MudTd Style="white-space:nowrap">
-                        @context.Attributes.CreatedAt.ToString("g")
-                    </MudTd>
                     <MudTd>
-                        <MudStack Row="true" AlignItems="AlignItems.Center">
-                            <MudText Typo="Typo.body2">
-                                @context.Attributes.Description
-                            </MudText>
-                            <MudText Typo="Typo.body2" Class="mud-text-disabled">
-                                @context.Attributes.RawText
+                        <MudStack Spacing="0">
+                            <MudStack Row="true" AlignItems="AlignItems.Center">
+                                <MudText>
+                                    @context.Attributes.Description
+                                </MudText>
+                            </MudStack>
+                            <MudText Typo="Typo.caption" Class="mud-text-disabled">
+                                @context.Attributes.CreatedAt.ToString("g")
+                                @if (!string.IsNullOrEmpty(context.Attributes.Message))
+                                {
+                                    <span> - @context.Attributes.Message</span>
+                                }
                             </MudText>
                         </MudStack>
-                        <i>@context.Attributes.Message</i>
                     </MudTd>
                     <MudTd Style="text-align:right">
-                        @if (context.Attributes.Status == "HELD")
-                        {
-                            <MudText Typo="Typo.caption" Class="mud-text-disabled">PENDING</MudText>
-                        }
                     </MudTd>
                     <MudTd Style="text-align:right">
-                        @context.Attributes.Amount.ToDisplayString()
+                        <MudStack Spacing="0">
+                            <MudText
+                                Color="@(context.Attributes.Amount.ValueInBaseUnits > 0 ? Color.Success : Color.Inherit)">
+                                @context.Attributes.Amount.ToDisplayString()
+                            </MudText>
+
+                            @if (context.Attributes.Status == "HELD")
+                            {
+                                <MudText Typo="Typo.caption" Class="mud-text-disabled">PENDING</MudText>
+                            }
+                        </MudStack>
                     </MudTd>
                 </RowTemplate>
                 <NoRecordsContent>
