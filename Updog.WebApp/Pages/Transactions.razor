@@ -70,18 +70,18 @@
             <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd" Class="pa-1">
                 <MudStack Row="true" AlignItems="AlignItems.Center">
                     <MudInputLabel Typo="Typo.body2">Results per page:</MudInputLabel>
-                    <MudSelect Value="@_resultsPerPage" ValueChanged="@((int value) => OnResultsPerPageChanged(value))"
+                    <MudSelect Value="@_resultsPerPage" Disabled="@_loading" ValueChanged="@((int value) => OnResultsPerPageChanged(value))"
                         Class="mud-table-pagination-select" Dense="true" Typo="Typo.body2" Underline="false">
                         <MudSelectItem Value="25">25</MudSelectItem>
                         <MudSelectItem Value="50">50</MudSelectItem>
                         <MudSelectItem Value="100">100</MudSelectItem>
                     </MudSelect>
                 </MudStack>
-                <MudIconButton OnClick="OnFirstButtonClicked" Disabled="@(PrevPageLink == null)"
+                <MudIconButton OnClick="OnFirstButtonClicked" Disabled="@(_loading || PrevPageLink == null)"
                     Icon="@Icons.Material.Filled.FirstPage" />
-                <MudIconButton OnClick="OnPrevButtonClicked" Disabled="@(PrevPageLink == null)"
+                <MudIconButton OnClick="OnPrevButtonClicked" Disabled="@(_loading || PrevPageLink == null)"
                     Icon="@Icons.Material.Filled.NavigateBefore" />
-                <MudIconButton OnClick="OnNextButtonClicked" Disabled="@(NextPageLink == null)"
+                <MudIconButton OnClick="OnNextButtonClicked" Disabled="@(_loading || NextPageLink == null)"
                     Icon="@Icons.Material.Filled.NavigateNext" />
             </MudStack>
         </MudPaper>
