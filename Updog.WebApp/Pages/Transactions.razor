@@ -29,19 +29,71 @@
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd>
-                        <MudStack Spacing="0">
-                            <MudStack Row="true" AlignItems="AlignItems.Center">
+                        <MudStack Row="true" AlignItems="AlignItems.Center">
+                            <MudAvatar Square="true" Style="background-color:inherit">
+                                @switch (context.Attributes.TransactionType)
+                                {
+                                    case null:
+                                    case "Purchase":
+                                    case "EFTPOS Purchase":
+                                    case "International Purchase":
+                                    case "Direct Debit":
+                                    case "ATM Operator Fee":
+                                        <MudIcon Icon="@Icons.Material.Filled.Payment" />
+                                        break;
+                                    case "Round Up":
+                                        <MudIcon Icon="@Icons.Material.Filled.ArrowUpward" />
+                                        break;
+                                    case "Transfer":
+                                    case "Payment":
+                                    case "Scheduled Transfer":
+                                    case "Deposit":
+                                    case "Pay Anyone":
+                                    case "Osko Payment Received":
+                                    case "Direct Credit":
+                                    case "EFTPOS Withdrawal":
+                                    case "EFTPOS Deposit":
+                                    case "Bonus Payment":
+                                        <MudIcon Icon="@Icons.Material.Filled.ArrowForward" />
+                                        break;
+                                    case "International ATM Cash Out":
+                                    case "ATM Cash Out":
+                                    case "Bank@Post Deposit":
+                                        <MudIcon Icon="@Icons.Material.Filled.Money" />
+                                        break;
+                                    case "BPAY Payment":
+                                        <MudText Inline="true" Typo="Typo.caption">BPAY</MudText>
+                                        break;
+                                    case "Salary":
+                                        <MudIcon Icon="@Icons.Material.Filled.Mail" />
+                                        break;
+                                    case "Interest":
+                                    case "Dividend":
+                                        <MudIcon Icon="@Icons.Material.Filled.Percent" />
+                                        break;
+                                    case "Refund":
+                                        <MudIcon Icon="@Icons.Material.Filled.Undo" />
+                                        break;
+                                    case "Drawdown":
+                                        <MudIcon Icon="@Icons.Material.Filled.ArrowDownward" />
+                                        break;
+                                    case "Lenders Mortgage Insurance":
+                                        <MudIcon Icon="@Icons.Material.Filled.HealthAndSafety" />
+                                        break;
+                                }
+                            </MudAvatar>
+                            <MudStack Spacing="0">
                                 <MudText>
                                     @context.Attributes.Description
                                 </MudText>
+                                <MudText Typo="Typo.caption" Class="mud-text-disabled">
+                                    @context.Attributes.CreatedAt.ToString("g")
+                                    @if (!string.IsNullOrEmpty(context.Attributes.Message))
+                                    {
+                                        <span> - @context.Attributes.Message</span>
+                                    }
+                                </MudText>
                             </MudStack>
-                            <MudText Typo="Typo.caption" Class="mud-text-disabled">
-                                @context.Attributes.CreatedAt.ToString("g")
-                                @if (!string.IsNullOrEmpty(context.Attributes.Message))
-                                {
-                                    <span> - @context.Attributes.Message</span>
-                                }
-                            </MudText>
                         </MudStack>
                     </MudTd>
                     <MudTd Style="text-align:right">
@@ -70,7 +122,8 @@
             <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd" Class="pa-1">
                 <MudStack Row="true" AlignItems="AlignItems.Center">
                     <MudInputLabel Typo="Typo.body2">Results per page:</MudInputLabel>
-                    <MudSelect Value="@_resultsPerPage" Disabled="@_loading" ValueChanged="@((int value) => OnResultsPerPageChanged(value))"
+                    <MudSelect Value="@_resultsPerPage" Disabled="@_loading"
+                        ValueChanged="@((int value) => OnResultsPerPageChanged(value))"
                         Class="mud-table-pagination-select" Dense="true" Typo="Typo.body2" Underline="false">
                         <MudSelectItem Value="25">25</MudSelectItem>
                         <MudSelectItem Value="50">50</MudSelectItem>
