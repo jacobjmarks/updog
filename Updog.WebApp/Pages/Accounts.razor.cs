@@ -9,6 +9,13 @@ public partial class Accounts
 {
     [Inject] private StateManager StateManager { get; set; } = null!;
 
+    private bool _loading = true;
+    private AccountResource _spendingAccount = null!;
+    private AccountResource? _2UpSpendingAccount;
+    private List<AccountResource> _savers = [];
+    private List<AccountResource> _2UpSavers = [];
+    private AccountResource? _homeLoanAccount;
+
     private Dictionary<string, List<AccountResource>>? _accountsByType;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -16,22 +23,44 @@ public partial class Accounts
         Console.WriteLine($"{nameof(Pages)}.{nameof(Accounts)}:{nameof(OnAfterRenderAsync)}(firstRender: {firstRender})");
         if (await StateManager.EnsureAuthenticatedAsync() && firstRender)
         {
-            await GetAccountsAsync();
+            await InitializeAsync();
         }
     }
 
-    private async Task GetAccountsAsync()
+    private async Task InitializeAsync()
     {
-        var up = await StateManager.GetUpBankApiClientAsync();
-
-        _accountsByType = [];
-
-        await foreach (var account in up.GetAllAccountsAsync())
+        _loading = true;
+        try
         {
-            if (!_accountsByType.TryGetValue(account.Attributes.AccountType, out var accounts))
-                _accountsByType[account.Attributes.AccountType] = [account];
-            else
-                accounts.Add(account);
+            var up = await StateManager.GetUpBankApiClientAsync();
+
+            _accountsByType = [];
+
+            await foreach (var account in up.GetAllAccountsAsync())
+            {
+                if (account.Attributes.AccountType == "TRANSACTIONAL")
+                {
+                    if (account.Attributes.OwnershipType == "JOINT")
+                        _2UpSpendingAccount = account;
+                    else
+                        _spendingAccount = account;
+                }
+                else if (account.Attributes.AccountType == "SAVER")
+                {
+                    if (account.Attributes.OwnershipType == "JOINT")
+                        _2UpSavers.Add(account);
+                    else
+                        _savers.Add(account);
+                }
+                else if (account.Attributes.AccountType == "HOME_LOAN")
+                {
+                    _homeLoanAccount = account;
+                }
+            }
+        }
+        finally
+        {
+            _loading = false;
         }
 
         StateHasChanged();

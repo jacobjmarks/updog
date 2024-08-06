@@ -9,88 +9,63 @@
     <h1 Class="mb-4">Accounts</h1>
 
     <MudStack>
-        @if (_accountsByType != null)
+        @if (_loading)
         {
-            var transactionalAccounts = _accountsByType.GetValueOrDefault("TRANSACTIONAL") ?? new();
-            var saverAccounts = _accountsByType.GetValueOrDefault("SAVER") ?? new();
-            var homeLoanAccounts = _accountsByType.GetValueOrDefault("HOME_LOAN") ?? new();
-
-            <MudText Typo="Typo.body1">Transactional</MudText>
-            <MudList T="string">
-                @foreach (var account in transactionalAccounts)
-                {
-                    <MudListItem Href="@($"transactions?account={account.Id}")">
-                        <ChildContent>
-                            <MudStack Row=true AlignItems="AlignItems.Center">
-                                <MudText>@account.Attributes.DisplayName</MudText>
-                                @if (account.Attributes.OwnershipType == "JOINT")
-                                {
-                                    <MudText Typo="Typo.caption" Class="mud-text-disabled">JOINT</MudText>
-                                }
-                                <MudSpacer />
-                                <MudText>@account.Attributes.Balance.ToDisplayString()</MudText>
-                            </MudStack>
-                        </ChildContent>
-                    </MudListItem>
-
-                    @if (account != transactionalAccounts.Last())
-                    {
-                        <MudDivider />
-                    }
-                }
-            </MudList>
-
-            <MudText Typo="Typo.body1">Savers</MudText>
-            <MudList T="string">
-                @foreach (var account in saverAccounts)
-                {
-                    <MudListItem Href="@($"transactions?account={account.Id}")">
-                        <ChildContent>
-                            <MudStack Row=true AlignItems="AlignItems.Center">
-                                <MudText>@account.Attributes.DisplayName</MudText>
-                                @if (account.Attributes.OwnershipType == "JOINT")
-                                {
-                                    <MudText Typo="Typo.caption" Class="mud-text-disabled">JOINT</MudText>
-                                }
-                                <MudSpacer />
-                                <MudText>@account.Attributes.Balance.ToDisplayString()</MudText>
-                            </MudStack>
-                        </ChildContent>
-                    </MudListItem>
-
-                    @if (account != saverAccounts.Last())
-                    {
-                        <MudDivider />
-                    }
-                }
-            </MudList>
-
-            @if (homeLoanAccounts.Count > 0)
+            <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+        }
+        else
+        {
+            RenderAccount(_spendingAccount);
+            @if (_2UpSpendingAccount != null)
             {
-                <MudText Typo="Typo.body1">Up Home</MudText>
-                <MudList T="string">
-                    @foreach (var account in homeLoanAccounts)
-                    {
-                        <MudListItem Href="@($"transactions?account={account.Id}")">
-                            <ChildContent>
-                                <MudStack Row=true AlignItems="AlignItems.Center">
-                                    <MudText>@account.Attributes.DisplayName</MudText>
-                                    @if (account.Attributes.OwnershipType == "JOINT")
-                                    {
-                                        <MudText Typo="Typo.caption" Class="mud-text-disabled">JOINT</MudText>
-                                    }
-                                    <MudSpacer />
-                                    <MudText>@account.Attributes.Balance.ToDisplayString()</MudText>
-                                </MudStack>
-                            </ChildContent>
-                        </MudListItem>
+                RenderAccount(_2UpSpendingAccount);
+            }
 
-                        @if (account != homeLoanAccounts.Last())
-                        {
-                            <MudDivider />
-                        }
-                    }
-                </MudList>
+            <MudDivider />
+
+            var saverSubtitle = _2UpSavers.Any() ? "PERSONAL SAVER" : null;
+
+            @foreach (var account in _savers)
+            {
+                RenderAccount(account, saverSubtitle);
+            }
+            @foreach (var account in _2UpSavers)
+            {
+                RenderAccount(account, "2UP SAVER");
+            }
+
+            <MudDivider />
+
+            @if (_homeLoanAccount != null)
+            {
+                RenderAccount(_homeLoanAccount);
+            }
+        }
+
+        @{
+            void RenderAccount(AccountResource account, string? subtitle = null)
+            {
+                <MudPaper>
+                    <MudButton FullWidth="true" Class="pa-6 justify-start" Color="Color.Transparent"
+                        Href="@($"transactions?account={account.Id}")">
+                        <MudStack Spacing="0">
+                            <MudText Typo="Typo.body1" Align="Align.Left">
+                                @account.Attributes.DisplayName
+                            </MudText>
+                            @if (subtitle != null)
+                            {
+                                <MudText Typo="Typo.caption" Class="mud-text-disabled">
+                                    @subtitle
+                                </MudText>
+                            }
+                        </MudStack>
+                        <MudSpacer />
+                        <MudText Typo="Typo.body1" Align="Align.Right" Style="white-space:nowrap">
+                            @account.Attributes.Balance.ToDisplayString()
+                        </MudText>
+                        <MudIcon Icon="@Icons.Material.Filled.ChevronRight" Class=" ml-6 mud-text-disabled" />
+                    </MudButton>
+                </MudPaper>
             }
         }
     </MudStack>
