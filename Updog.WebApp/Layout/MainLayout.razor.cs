@@ -1,13 +1,16 @@
 ﻿using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using Updog.WebApp.Components;
 using Updog.WebApp.Services;
 
 namespace Updog.WebApp.Layout;
 
 public partial class MainLayout
 {
+    [CascadingParameter]
+    public AppState AppState { get; set; } = null!;
+
     [Inject] private LocalStorageService LocalStorageService { get; set; } = null!;
-    [Inject] private StateManager StateManager { get; set; } = null!;
 
     private MudThemeProvider _mudThemeProvider = null!;
 
@@ -18,7 +21,7 @@ public partial class MainLayout
         set
         {
             _isDarkMode = value;
-            LocalStorageService.SetItemAsync("qsd:cfg:dark-mode", value).CatchAndLog();
+            LocalStorageService.SetItemAsync("updog:cfg:dark-mode", value).CatchAndLog();
         }
     }
 
@@ -27,40 +30,13 @@ public partial class MainLayout
 
     private bool _drawerOpen = true;
 
-    private bool _userIsLoggedIn = false;
-    public bool UserIsLoggedIn
+    protected override async Task OnInitializedAsync()
     {
-        get => _userIsLoggedIn; set
-        {
-            var notifyStateChanged = value != _userIsLoggedIn;
-            _userIsLoggedIn = value;
-            if (notifyStateChanged)
-                StateHasChanged();
-        }
-    }
+        await AppState.EnsureReadyAsync();
 
-    private bool? _userHasHomeLoanAccount;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        Console.WriteLine($"{nameof(MainLayout)}:{nameof(OnAfterRenderAsync)}(firstRender: {firstRender})");
-        UserIsLoggedIn = await StateManager.IsAuthenticatedAsync();
-
-        if (firstRender)
-        {
-            var themePreference = await LocalStorageService.GetItemAsync<bool?>("qsd:cfg:dark-mode");
-            IsDarkMode = themePreference ?? await _mudThemeProvider.GetSystemPreference();
-            UpdateDarkLightModeIcon();
-
-            StateHasChanged();
-        }
-
-        if (_userHasHomeLoanAccount == null && UserIsLoggedIn)
-        {
-            var up = await StateManager.GetUpBankApiClientAsync();
-            _userHasHomeLoanAccount = (await up.GetAccountsAsync(filterAccountType: "HOME_LOAN")).Data.Any();
-            StateHasChanged();
-        }
+        var themePreference = await LocalStorageService.GetItemAsync<bool?>("updog:cfg:dark-mode");
+        IsDarkMode = themePreference ?? await _mudThemeProvider.GetSystemPreference();
+        UpdateDarkLightModeIcon();
     }
 
     private void OnMenuButtonClicked()
@@ -90,7 +66,6 @@ public partial class MainLayout
 
     private async Task OnLogoutButtonClicked()
     {
-        await StateManager.LogoutAsync();
-        UserIsLoggedIn = false;
+        await AppState.LogoutAsync();
     }
 }

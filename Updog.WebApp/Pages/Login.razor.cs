@@ -1,13 +1,16 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using Updog.WebApp.Components;
 using Updog.WebApp.Services;
 
 namespace Updog.WebApp.Pages;
 
 public partial class Login
 {
+    [CascadingParameter]
+    public AppState AppState { get; set; } = null!;
+
     [Inject] private NavigationManager NavigationManager { get; set; } = null!;
-    [Inject] private StateManager StateManager { get; set; } = null!;
 
     public string InputValue { get; set; } = null!;
     public bool RememberMe { get; set; }
@@ -15,6 +18,14 @@ public partial class Login
     private bool _loggingIn = false;
     private MudForm loginForm = null!;
     private MudTextField<string> textField = null!;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await AppState.EnsureReadyAsync();
+
+        if (AppState.UserIsLoggedIn && firstRender)
+            NavigationManager.NavigateTo("");
+    }
 
     public async Task OnLoginButtonClicked()
     {
@@ -26,7 +37,7 @@ public partial class Login
 
         try
         {
-            if (!await StateManager.LoginAsync(InputValue, RememberMe))
+            if (!await AppState.LoginAsync(InputValue, RememberMe))
             {
                 textField.Error = true;
                 textField.ErrorText = "Invalid token";
@@ -40,11 +51,5 @@ public partial class Login
         {
             _loggingIn = false;
         }
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && await StateManager.IsAuthenticatedAsync())
-            NavigationManager.NavigateTo("");
     }
 }

@@ -1,19 +1,25 @@
 using Microsoft.AspNetCore.Components;
-using Updog.WebApp.Services;
 
 namespace Updog.WebApp.Components;
 
-public partial class EnsureAuthenticated : ComponentBase
+public partial class EnsureAuthenticated
 {
-    [Inject] private StateManager StateManager { get; set; } = null!;
+    [CascadingParameter]
+    public AppState AppState { get; set; } = null!;
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
-    private bool _isAuthenticated = false;
+    [Inject] private NavigationManager NavigationManager { get; set; } = null!;
 
-    protected override async Task OnInitializedAsync()
+    private bool _isAuthenticated;
+
+    protected override async Task OnParametersSetAsync()
     {
-        _isAuthenticated = await StateManager.IsAuthenticatedAsync();
+        await AppState.EnsureReadyAsync();
+
+        _isAuthenticated = AppState.UserIsLoggedIn;
+        if (!_isAuthenticated)
+            NavigationManager.NavigateTo("login");
     }
 }

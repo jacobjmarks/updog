@@ -1,13 +1,15 @@
 using Microsoft.AspNetCore.Components;
 using Updog.Core;
 using Updog.Core.Models;
+using Updog.WebApp.Components;
 using Updog.WebApp.Services;
 
 namespace Updog.WebApp.Pages;
 
 public partial class Accounts
 {
-    [Inject] private StateManager StateManager { get; set; } = null!;
+    [CascadingParameter]
+    public AppState AppState { get; set; } = null!;
 
     private bool _loading = true;
     private AccountResource _spendingAccount = null!;
@@ -20,11 +22,10 @@ public partial class Accounts
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Console.WriteLine($"{nameof(Pages)}.{nameof(Accounts)}:{nameof(OnAfterRenderAsync)}(firstRender: {firstRender})");
-        if (await StateManager.EnsureAuthenticatedAsync() && firstRender)
-        {
+        await AppState.EnsureReadyAsync();
+
+        if (AppState.UserIsLoggedIn && firstRender)
             await InitializeAsync();
-        }
     }
 
     private async Task InitializeAsync()
@@ -32,7 +33,7 @@ public partial class Accounts
         _loading = true;
         try
         {
-            var up = await StateManager.GetUpBankApiClientAsync();
+            var up = AppState.UpBankApiClient;
 
             _accountsByType = [];
 

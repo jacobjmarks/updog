@@ -3,14 +3,17 @@ using MudBlazor;
 using MudBlazor.Components.Chart.Models;
 using Updog.Core;
 using Updog.Core.Models;
+using Updog.WebApp.Components;
 using Updog.WebApp.Services;
 
 namespace Updog.WebApp.Pages;
 
 public partial class HomeLoan
 {
+    [CascadingParameter]
+    public AppState AppState { get; set; } = null!;
+
     [Inject] public NavigationManager NavigationManager { get; set; } = null!;
-    [Inject] public StateManager StateManager { get; set; } = null!;
 
     private AccountResource _homeLoanAccount = null!;
     private List<TransactionResource> _homeLoanTransactions = [];
@@ -27,11 +30,10 @@ public partial class HomeLoan
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Console.WriteLine($"{nameof(Pages)}.{nameof(Accounts)}:{nameof(OnAfterRenderAsync)}(firstRender: {firstRender})");
-        if (await StateManager.EnsureAuthenticatedAsync() && firstRender)
-        {
+        await AppState.EnsureReadyAsync();
+
+        if (AppState.UserIsLoggedIn && firstRender)
             await InitializeAsync();
-        }
     }
 
     private async Task InitializeAsync()
@@ -39,7 +41,7 @@ public partial class HomeLoan
         _loading = true;
         try
         {
-            var up = await StateManager.GetUpBankApiClientAsync();
+            var up = AppState.UpBankApiClient;
             var accounts = (await up.GetAccountsAsync(pageSize: 100)).Data;
 
             var homeLoanAccount = accounts.FirstOrDefault(a => a.Attributes.AccountType == "HOME_LOAN");

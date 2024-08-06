@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Components;
 using Updog.Core;
 using Updog.Core.Models;
-using Updog.WebApp.Services;
+using Updog.WebApp.Components;
 
 namespace Updog.WebApp.Pages;
 
 public partial class Transactions
 {
-    [Inject] private StateManager StateManager { get; set; } = null!;
+    [CascadingParameter]
+    public AppState AppState { get; set; } = null!;
 
     public string? PrevPageLink { get; set; }
     public string? NextPageLink { get; set; }
@@ -21,7 +22,9 @@ public partial class Transactions
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (await StateManager.EnsureAuthenticatedAsync() && firstRender)
+        await AppState.EnsureReadyAsync();
+
+        if (AppState.UserIsLoggedIn && firstRender)
         {
             await GetAccountsAsync();
             await GetFirstPageAsync(notifyStateChanged: true);
@@ -42,7 +45,7 @@ public partial class Transactions
 
     private async Task GetAccountsAsync()
     {
-        var up = await StateManager.GetUpBankApiClientAsync();
+        var up = AppState.UpBankApiClient;
         var accounts = new List<AccountResource>();
         await foreach (var account in up.GetAllAccountsAsync())
             accounts.Add(account);
@@ -55,7 +58,7 @@ public partial class Transactions
         _loading = true;
         try
         {
-            var up = await StateManager.GetUpBankApiClientAsync();
+            var up = AppState.UpBankApiClient;
             PagedResource<TransactionResource> page;
             if (!string.IsNullOrEmpty(FilterByAccountId))
             {
@@ -98,7 +101,7 @@ public partial class Transactions
         _loading = true;
         try
         {
-            var up = await StateManager.GetUpBankApiClientAsync();
+            var up = AppState.UpBankApiClient;
             var page = await up.GetAsync<PagedResource<TransactionResource>>(PrevPageLink);
 
             PrevPageLink = page.Links.Prev;
@@ -120,7 +123,7 @@ public partial class Transactions
         _loading = true;
         try
         {
-            var up = await StateManager.GetUpBankApiClientAsync();
+            var up = AppState.UpBankApiClient;
             var page = await up.GetAsync<PagedResource<TransactionResource>>(NextPageLink);
 
             PrevPageLink = page.Links.Prev;

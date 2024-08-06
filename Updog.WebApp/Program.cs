@@ -20,6 +20,5 @@ builder.Services.AddMudServices();
 builder.Services.AddSingleton<ClipboardService>();
 builder.Services.AddSingleton<LocalStorageService>();
 builder.Services.AddSingleton<SessionStorageService>();
-builder.Services.AddSingleton<StateManager>();
 
 await builder.Build().RunAsync();
