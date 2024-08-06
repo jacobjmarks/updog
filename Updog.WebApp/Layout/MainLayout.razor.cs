@@ -52,12 +52,13 @@ public partial class MainLayout
             IsDarkMode = themePreference ?? await _mudThemeProvider.GetSystemPreference();
             UpdateDarkLightModeIcon();
 
-            if (UserIsLoggedIn)
-            {
-                var up = await StateManager.GetUpBankApiClientAsync();
-                _userHasHomeLoanAccount = (await up.GetAccountsAsync(filterAccountType: "HOME_LOAN")).Data.Any();
-            }
+            StateHasChanged();
+        }
 
+        if (_userHasHomeLoanAccount == null && UserIsLoggedIn)
+        {
+            var up = await StateManager.GetUpBankApiClientAsync();
+            _userHasHomeLoanAccount = (await up.GetAccountsAsync(filterAccountType: "HOME_LOAN")).Data.Any();
             StateHasChanged();
         }
     }
