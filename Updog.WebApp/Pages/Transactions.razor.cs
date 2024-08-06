@@ -10,14 +10,27 @@ public partial class Transactions
     [CascadingParameter]
     public AppState AppState { get; set; } = null!;
 
+    [Inject] private NavigationManager NavigationManager { get; set; } = null!;
+
     public string? PrevPageLink { get; set; }
     public string? NextPageLink { get; set; }
 
     private IEnumerable<TransactionResource> _transactions = [];
     private IEnumerable<AccountResource> _accounts = [];
     private bool _loading = true;
+    private string? _filterByAccountId = null;
     [SupplyParameterFromQuery(Name = "account")]
-    private string? FilterByAccountId { get; set; }
+    private string? FilterByAccountId
+    {
+        get => _filterByAccountId;
+        set
+        {
+            _filterByAccountId = value;
+            NavigationManager.NavigateTo(
+                NavigationManager.GetUriWithQueryParameter("account", value),
+                replace: true);
+        }
+    }
     private int _resultsPerPage = 25;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
