@@ -25,10 +25,13 @@ public partial class Transactions
         get => _filterByAccountId;
         set
         {
-            _filterByAccountId = value;
-            NavigationManager.NavigateTo(
-                NavigationManager.GetUriWithQueryParameter("account", value),
-                replace: true);
+            if (value != _filterByAccountId)
+            {
+                _filterByAccountId = value;
+                NavigationManager.NavigateTo(
+                    NavigationManager.GetUriWithQueryParameter("account", value),
+                    replace: true);
+            }
         }
     }
     private int _resultsPerPage = 25;
