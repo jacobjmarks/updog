@@ -1,11 +1,15 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
 using Updog.WebApp;
 using Updog.WebApp.Services;
 
-System.Globalization.CultureInfo.CurrentCulture = new("en-AU");
-System.Globalization.CultureInfo.CurrentUICulture = new("en-AU");
+var culture = new CultureInfo("en-AU");
+CultureInfo.CurrentCulture = culture;
+CultureInfo.CurrentUICulture = culture;
+CultureInfo.DefaultThreadCurrentCulture = culture;
+CultureInfo.DefaultThreadCurrentUICulture = culture;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
