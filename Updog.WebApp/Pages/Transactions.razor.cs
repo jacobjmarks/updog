@@ -15,7 +15,7 @@ public partial class Transactions
     public string? PrevPageLink { get; set; }
     public string? NextPageLink { get; set; }
 
-    private IEnumerable<TransactionResource> _transactions = [];
+    private List<TransactionResource> _transactions = [];
     private IEnumerable<AccountResource> _accounts = [];
     private bool _loading = true;
     private string? _filterByAccountId = null;
@@ -34,7 +34,7 @@ public partial class Transactions
             }
         }
     }
-    private int _resultsPerPage = 25;
+    private int _resultsPerPage = 50;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -50,12 +50,6 @@ public partial class Transactions
     private async Task OnAccountFilterChanged(string? account)
     {
         FilterByAccountId = account;
-        await GetFirstPageAsync();
-    }
-
-    private async Task OnResultsPerPageChanged(int value)
-    {
-        _resultsPerPage = value;
         await GetFirstPageAsync();
     }
 
@@ -93,7 +87,7 @@ public partial class Transactions
             PrevPageLink = page.Links.Prev;
             NextPageLink = page.Links.Next;
 
-            _transactions = page.Data;
+            _transactions = page.Data.ToList();
         }
         finally
         {
@@ -104,34 +98,7 @@ public partial class Transactions
             StateHasChanged();
     }
 
-    public async Task OnFirstButtonClicked()
-    {
-        await GetFirstPageAsync();
-    }
-
-    public async Task OnPrevButtonClicked()
-    {
-        if (PrevPageLink == null)
-            return;
-
-        _loading = true;
-        try
-        {
-            var up = AppState.UpBankApiClient;
-            var page = await up.GetAsync<PagedResource<TransactionResource>>(PrevPageLink);
-
-            PrevPageLink = page.Links.Prev;
-            NextPageLink = page.Links.Next;
-
-            _transactions = page.Data;
-        }
-        finally
-        {
-            _loading = false;
-        }
-    }
-
-    public async Task OnNextButtonClicked()
+    public async Task OnLoadMoreButtonClicked()
     {
         if (NextPageLink == null)
             return;
@@ -145,7 +112,7 @@ public partial class Transactions
             PrevPageLink = page.Links.Prev;
             NextPageLink = page.Links.Next;
 
-            _transactions = page.Data;
+            _transactions.AddRange(page.Data);
         }
         finally
         {

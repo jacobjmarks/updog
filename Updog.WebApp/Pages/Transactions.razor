@@ -20,7 +20,8 @@
                     }
                 </MudSelect>
             </MudStack>
-            <MudTable Elevation="0" Items="_transactions" Loading="@_loading" Dense="true" Breakpoint="Breakpoint.None">
+            <MudTable Elevation="0" Items="_transactions" Loading="@_loading" Dense="true" Breakpoint="Breakpoint.None"
+                Virtualize="true">
                 <ColGroup>
                     <col style="width:100%" />
                 </ColGroup>
@@ -119,23 +120,22 @@
                     <MudText>Loading...</MudText>
                 </LoadingContent>
             </MudTable>
-            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd" Class="pa-1">
-                <MudStack Row="true" AlignItems="AlignItems.Center">
-                    <MudInputLabel Typo="Typo.body2">Results per page:</MudInputLabel>
-                    <MudSelect Value="@_resultsPerPage" Disabled="@_loading"
-                        ValueChanged="@((int value) => OnResultsPerPageChanged(value))"
-                        Class="mud-table-pagination-select" Dense="true" Typo="Typo.body2" Underline="false">
-                        <MudSelectItem Value="25">25</MudSelectItem>
-                        <MudSelectItem Value="50">50</MudSelectItem>
-                        <MudSelectItem Value="100">100</MudSelectItem>
-                    </MudSelect>
-                </MudStack>
-                <MudIconButton OnClick="OnFirstButtonClicked" Disabled="@(_loading || PrevPageLink == null)"
-                    Icon="@Icons.Material.Filled.FirstPage" />
-                <MudIconButton OnClick="OnPrevButtonClicked" Disabled="@(_loading || PrevPageLink == null)"
-                    Icon="@Icons.Material.Filled.NavigateBefore" />
-                <MudIconButton OnClick="OnNextButtonClicked" Disabled="@(_loading || NextPageLink == null)"
-                    Icon="@Icons.Material.Filled.NavigateNext" />
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+                @if (NextPageLink != null)
+                {
+                    <MudButton Disabled="@_loading" OnClick="OnLoadMoreButtonClicked" Color="Color.Primary"
+                        Variant="Variant.Filled" FullWidth="true">
+                        @if (_loading)
+                        {
+                            <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                            <MudText Class="ms-2">Loading</MudText>
+                        }
+                        else
+                        {
+                            <MudText>Load more</MudText>
+                        }
+                    </MudButton>
+                }
             </MudStack>
         </MudPaper>
     </MudStack>
